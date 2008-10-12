@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+"""Simple interface to netgrowl
+"""
 from netgrowl import GrowlRegistrationPacket, GrowlNotificationPacket, GROWL_UDP_PORT
 from socket import AF_INET, SOCK_DGRAM, socket
 
