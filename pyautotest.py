@@ -61,7 +61,7 @@ def find_testcases(module):
         path, cfile = os.path.split(module)
         module = os.path.splitext(cfile)[0]
         sys.path.append(path)
-        
+    
     basemod = load(module)
     testcases = load_testcases(basemod)
     path = os.path.dirname(basemod.__file__)
@@ -92,22 +92,22 @@ def run_tests(modules):
         suite.addTests(
             unittest.TestLoader().loadTestsFromTestCase(cur_modules[1])
         )
-
+    
     report = StringIO()
     runner = unittest.TextTestRunner(report)
     results = runner.run(suite)
-
+    
     status = {
         'error':{},
         'failure':{},
     }
-
+    
     for tcinstance, traceb in results.failures:
         status['failure'][str(tcinstance.id())] = {
             'name':tcinstance,
             'traceback': traceb
         }
-
+    
     for tcinstance, traceb in results.errors:
         status['error'][str(tcinstance.id())] = {
             'name':tcinstance.id(),
@@ -171,7 +171,7 @@ def cb_fixed(status_name, change):
 #################
 
 def main():
-    """Takes a bunch of files, 
+    """Takes a bunch of files, runs the tests when files are modified
     """
     prs = OptionParser()
     prs.add_option("-d", "--delay", dest="delay", type="int", default = 2,
@@ -180,13 +180,13 @@ def main():
     
     if len(args) == 0:
         prs.error("No files supplied!")
-
+    
     last = None
     while True:
         to_test = []
         for cur_arg in args:
             to_test.extend( find_testcases(cur_arg) )
-    
+        
         if len(to_test) == 0:
             print "No tests found! Waiting 10 seconds"
             time.sleep(10)
@@ -195,9 +195,9 @@ def main():
             
             if last == None:
                 last = { 'error':{}, 'failure':{} }
-
+            
             diff_results(last, cur)
-
+            
             last = cur
             time.sleep(opts.delay)
 
