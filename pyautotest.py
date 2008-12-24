@@ -172,6 +172,10 @@ def cb_fixed(status_name, change):
     print body
     print "-" * 78
 
+####################
+# Helper functions #
+####################
+
 class FileModChecker:
     """Checks if a file has been modified.
     Can compare either a sha1 hash of the file (which checks for content
@@ -191,6 +195,9 @@ class FileModChecker:
         self.method = method
         
         self.prev_stamp = self._get_stamp()
+    
+    def __repr__(self):
+        return "<FileModChecker for %s" % (self.filename)
     
     def _get_stamp(self):
         """Calculates a "stamp" of the file.
@@ -220,22 +227,51 @@ class FileModChecker:
 # Main function #
 #################
 
+def find_files(base, extension = "py", include_hidden = False):
+    """Recursivly finds files in a directory
+    """
+    out = []
+    for cur_file in os.listdir(base):
+        if not include_hidden:
+            if os.path.split(cur_file)[1].startswith("."):
+                continue
+        
+        if extension is not None:
+            if not os.path.splitext(cur_file)[1] == "." + extension:
+                continue
+        
+        cur_file = os.path.join(base, cur_file)
+        if os.path.isdir(cur_file):
+            out.extend(find_files(cur_file, extension, include_hidden))
+        else:
+            out.append(cur_file)
+    
+    return out
+
 def main():
     """Takes a bunch of files, runs the tests when files are modified
     """
     prs = OptionParser()
     prs.add_option("-d", "--delay", dest="delay", type="int", default = 2,
-                 help = "delay between running tests")
+                  help = "delay between running tests (integer)")
+    prs.add_option("-m", "--method", dest="method", default="sha1",
+               help = "method used to detect file modification. sha1 or time.")
+    prs.add_option("-i", "--invisible", dest="invisible", action="store_true",
+                help = "Include hidden (dot) files when looking for test-cases")
     opts, args = prs.parse_args()
     
     if len(args) == 0:
         prs.error("No files supplied!")
+
+    print "## pyautotest starting.."
     
     all_files = []
     for cur_arg in args:
-        all_files.append(
-            FileModChecker(cur_arg)
+        all_files.extend(
+            [FileModChecker(x) for x in find_files(cur_arg, include_hidden = opts.invisible)]
         )
+    
+    print "# %s files found" % (len(all_files))
     
     last = { 'error':{}, 'failure':{} }
     while True:
@@ -248,7 +284,7 @@ def main():
         
         if len(to_test) == 0:
             # No tests needed to run
-            time.sleep(1)
+            time.sleep(opts.delay)
         else:
             cur = run_tests(to_test)
             diff_results(last, cur)
