@@ -231,21 +231,26 @@ def main():
     if len(args) == 0:
         prs.error("No files supplied!")
     
-    last = None
+    all_files = []
+    for cur_arg in args:
+        all_files.append(
+            FileModChecker(cur_arg)
+        )
+    
+    last = { 'error':{}, 'failure':{} }
     while True:
         to_test = []
-        for cur_arg in args:
-            to_test.extend( find_testcases(cur_arg) )
+        for cur_file in all_files:
+            if not cur_file.modified():
+                continue
+            
+            to_test.extend( find_testcases(cur_file.filename) )
         
         if len(to_test) == 0:
-            print "No tests found! Waiting 10 seconds"
-            time.sleep(10)
+            # No tests needed to run
+            time.sleep(1)
         else:
             cur = run_tests(to_test)
-            
-            if last == None:
-                last = { 'error':{}, 'failure':{} }
-            
             diff_results(last, cur)
             
             last = cur
