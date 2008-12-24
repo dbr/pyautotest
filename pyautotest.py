@@ -13,6 +13,7 @@ import os
 import sys
 import time
 import types
+import hashlib
 import unittest
 import subprocess
 
@@ -173,6 +174,37 @@ def cb_fixed(status_name, change):
 #################
 # Main function #
 #################
+
+class ModificationChecker:
+    valid_methods = ["time", "sha1"]
+    
+    def __init__(self, f, method="time"):
+        if method not in self.valid_methods:
+            raise TypeError("Modification detection method must be one of: %s" % (
+                ", ".join(self.valid_methods)
+            ))
+        
+        self.f = f
+        self.method = method
+        
+        self.prev_stamp = self._get_stamp()
+    
+    def _get_stamp(self):
+        return {
+            'time':
+                os.path.getmtime(self.f),
+            'sha1':
+                hashlib.sha1(open(self.f).read()).hexdigest()
+        }[self.method]
+    
+    def modified(self):
+        new_stamp = self._get_stamp()
+        if new_stamp > self.prev_stamp:
+            self.prev_stamp = new_stamp
+            return True
+        else:
+            return False
+        
 
 def main():
     """Takes a bunch of files, runs the tests when files are modified
