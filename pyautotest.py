@@ -121,11 +121,11 @@ def diff_results(last, cur):
     """Diffs two run_tests results, calling the appropriate callbacks.
     """
     for status_name in cur.keys():
-        ls = set(last[status_name])
-        cs = set(cur[status_name])
+        set_last = set(last[status_name])
+        set_cur = set(cur[status_name])
         
-        broken = cs - ls
-        fixed = ls - cs
+        broken = set_cur - set_last
+        fixed = set_last - set_cur
         
         for change in broken:
             cb_break(status_name, cur[status_name][change])
@@ -136,6 +136,7 @@ def diff_results(last, cur):
 #############
 # Callbacks #
 #############
+
 def cb_break(status_name, change):
     """Called when a test starts failing
     """
