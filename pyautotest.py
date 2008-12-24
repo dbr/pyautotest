@@ -146,7 +146,7 @@ def cb_break(status_name, change):
         change['traceback']
     )
     subprocess.Popen(
-        ["growlnotify", title, 
+        ["growlnotify", title,
         "--name", "pyautotest",
         "-i", "py",
         "-m", body]
@@ -163,7 +163,7 @@ def cb_fixed(status_name, change):
         change['name']
     )
     subprocess.Popen(
-        ["growlnotify", title, 
+        ["growlnotify", title,
         "--name", "pyautotest",
         "-i", "py",
         "-m", body]
@@ -194,7 +194,7 @@ class FileModChecker:
         self.filename = filename
         self.method = method
         
-        self.prev_stamp = self._get_stamp()
+        self.prev_stamp = None
     
     def __repr__(self):
         return "<FileModChecker for %s" % (self.filename)
