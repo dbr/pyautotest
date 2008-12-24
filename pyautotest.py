@@ -14,11 +14,10 @@ import sys
 import time
 import types
 import unittest
+import subprocess
 
 from optparse import OptionParser
 from StringIO import StringIO
-
-from rawr import rawr
 
 ###############################
 # Test-case finding functions #
@@ -134,37 +133,40 @@ def diff_results(last, cur):
 #############
 # Callbacks #
 #############
-
-def reg_growl():
-    """Used by the callback, registers the application with Growl
-    """
-    growl = rawr(
-        "pyautotest", "localhost", "yay",
-        ntypes = ["error", "failure", "pass"]
-    )
-    growl.regApp()
-    return growl
-
 def cb_break(status_name, change):
     """Called when a test starts failing
     """
-    growl = reg_growl()
     title = "Test %s" % (status_name)
     body = "%s\n\n%s" % (
         change['name'],
         change['traceback']
     )
-    growl.sendnotif(title, body, ntype = status_name)
+    subprocess.Popen(
+        ["growlnotify", title, 
+        "--name", "pyautotest",
+        "-i", "py",
+        "-m", body]
+    )
+    print title
+    print body
+    print "-" * 78
 
 def cb_fixed(status_name, change):
     """Called when a test is fixed
     """
-    growl = reg_growl()
     title = "Fixed %s" % (status_name)
     body = "%s" % (
         change['name']
     )
-    growl.sendnotif(title, body, ntype = status_name)
+    subprocess.Popen(
+        ["growlnotify", title, 
+        "--name", "pyautotest",
+        "-i", "py",
+        "-m", body]
+    )
+    print title
+    print body
+    print "-" * 78
 
 #################
 # Main function #
