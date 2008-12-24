@@ -231,20 +231,23 @@ def find_files(base, extension = "py", include_hidden = False):
     """Recursivly finds files in a directory
     """
     out = []
-    for cur_file in os.listdir(base):
-        if not include_hidden:
-            if os.path.split(cur_file)[1].startswith("."):
-                continue
+    if os.path.isdir(base):
+        for cur_file in os.listdir(base):
+            if not include_hidden:
+                if os.path.split(cur_file)[1].startswith("."):
+                    continue
         
-        if extension is not None:
-            if not os.path.splitext(cur_file)[1] == "." + extension:
-                continue
+            if extension is not None:
+                if not os.path.splitext(cur_file)[1] == "." + extension:
+                    continue
         
-        cur_file = os.path.join(base, cur_file)
-        if os.path.isdir(cur_file):
-            out.extend(find_files(cur_file, extension, include_hidden))
-        else:
-            out.append(cur_file)
+            cur_file = os.path.join(base, cur_file)
+            if os.path.isdir(cur_file):
+                out.extend(find_files(cur_file, extension, include_hidden))
+            else:
+                out.append(cur_file)
+    elif os.path.isfile(base):
+        out.append(base)
     
     return out
 
