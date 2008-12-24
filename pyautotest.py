@@ -282,14 +282,19 @@ def main():
         for cur_file in all_files:
             if not cur_file.modified():
                 continue
-            
             to_test.extend( find_testcases(cur_file.filename) )
         
         if len(to_test) == 0:
             # No tests needed to run
             time.sleep(opts.delay)
+        
         else:
-            cur = run_tests(to_test)
+            try:
+                print "# Running tests..."
+                cur = run_tests(to_test)
+                print "# ..done"
+            except KeyboardInterrupt:
+                print "Tests aborted!"
             diff_results(last, cur)
             
             last = cur
