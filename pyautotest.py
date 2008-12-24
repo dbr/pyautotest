@@ -119,15 +119,17 @@ def run_tests(modules):
 def diff_results(last, cur):
     """Diffs two run_tests results, calling the appropriate callbacks.
     """
-    for status_name, contents in cur.items():
-        for cur_key in contents.keys():
-            if not last[status_name].has_key(cur_key):
-                cb_break(status_name, cur[status_name][cur_key])
-    
-    for status_name, contents in last.items():
-        for cur_key in contents.keys():
-            if not cur[status_name].has_key(cur_key):
-                cb_fixed(status_name, last[status_name][cur_key])
+    for status_name in cur.keys():
+        ls = set(last[status_name])
+        cs = set(cur[status_name])
+        
+        broken = cs - ls
+        fixed = ls - cs
+        
+        for change in broken:
+            cb_break(status_name, cur[status_name][change])
+        for change in fixed:
+            cb_fixed(status_name, last[status_name][change])
 
 
 #############
