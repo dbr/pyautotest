@@ -172,30 +172,36 @@ def cb_fixed(status_name, change):
     print body
     print "-" * 78
 
-#################
-# Main function #
-#################
-
-class ModificationChecker:
+class FileModChecker:
+    """Checks if a file has been modified.
+    Can compare either a sha1 hash of the file (which checks for content
+    modification) or timestamp modification (which will trigger whenever
+    even if the files content has not changed).
+    sha1 is recommended, but could be slow with many or very large files.
+    """
     valid_methods = ["time", "sha1"]
     
-    def __init__(self, f, method="time"):
+    def __init__(self, filename, method="time"):
         if method not in self.valid_methods:
-            raise TypeError("Modification detection method must be one of: %s" % (
-                ", ".join(self.valid_methods)
+            raise TypeError("method must be one of: %s" % (
+                    ", ".join(self.valid_methods)
             ))
         
-        self.f = f
+        self.filename = filename
         self.method = method
         
         self.prev_stamp = self._get_stamp()
     
     def _get_stamp(self):
+        """Calculates a "stamp" of the file.
+        "time" uses the files mtime.
+        "sha1" uses the hashlib.sha1 module to hash the files content
+        """
         return {
             'time':
-                os.path.getmtime(self.f),
+                os.path.getmtime(self.filename),
             'sha1':
-                hashlib.sha1(open(self.f).read()).hexdigest()
+                hashlib.sha1(open(self.filename).read()).hexdigest()
         }[self.method]
     
     def modified(self):
@@ -205,7 +211,11 @@ class ModificationChecker:
             return True
         else:
             return False
+
         
+#################
+# Main function #
+#################
 
 def main():
     """Takes a bunch of files, runs the tests when files are modified
