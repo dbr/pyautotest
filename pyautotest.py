@@ -205,6 +205,9 @@ class FileModChecker:
         }[self.method]
     
     def modified(self):
+        """Checks if the file has been modified since either the
+        class is initalised, or modified was last called
+        """
         new_stamp = self._get_stamp()
         if new_stamp > self.prev_stamp:
             self.prev_stamp = new_stamp
