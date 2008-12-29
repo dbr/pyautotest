@@ -222,7 +222,7 @@ class FileModChecker:
         else:
             return False
 
-        
+
 #################
 # Main function #
 #################
@@ -271,34 +271,44 @@ def main():
     all_files = []
     for cur_arg in args:
         all_files.extend(
-            [FileModChecker(x) for x in find_files(cur_arg, include_hidden = opts.invisible)]
-        )
+            [FileModChecker(x) 
+            for x in find_files(cur_arg, 
+                                include_hidden = opts.invisible)
+            ])
     
     print "# %s files found" % (len(all_files))
     
     last = { 'error':{}, 'failure':{} }
     while True:
+        # Wait for a file to be modified
+        for cur_file in all_files:
+            if cur_file.modified():
+                print "files modified"
+                break # A file is modified, break out of for loop
+        else:
+            # No files were modified, wait then skip to start of while loop
+            time.sleep(opts.delay)
+            continue
+        
         to_test = []
         for cur_file in all_files:
-            if not cur_file.modified():
-                continue
             to_test.extend( find_testcases(cur_file.filename) )
         
         if len(to_test) == 0:
-            # No tests needed to run
+            # No tests found
             time.sleep(opts.delay)
+            continue # Start while loop again
         
-        else:
-            try:
-                print "# Running tests..."
-                cur = run_tests(to_test)
-                print "# ..done"
-            except KeyboardInterrupt:
-                print "Tests aborted!"
-            diff_results(last, cur)
-            
-            last = cur
-            time.sleep(opts.delay)
+        try:
+            print "# Running tests..."
+            cur = run_tests(to_test)
+            print "# ..done"
+        except KeyboardInterrupt:
+            print "Tests aborted!"
+        diff_results(last, cur)
+        
+        last = cur
+        time.sleep(opts.delay)
 
 if __name__ == '__main__':
     main()
