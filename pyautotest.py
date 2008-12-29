@@ -17,8 +17,8 @@ import hashlib
 import unittest
 import subprocess
 
-from optparse import OptionParser
 from StringIO import StringIO
+from optparse import OptionParser
 
 ###############################
 # Test-case finding functions #
