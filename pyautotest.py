@@ -8,6 +8,7 @@
 
 """Like ZenTest's autotest command, but for Python modules
 """
+__version__ = (1, 0)
 
 import os
 import sys
