@@ -293,7 +293,13 @@ def main():
         
         to_test = []
         for cur_file in all_files:
-            to_test.extend( find_testcases(cur_file.filename) )
+            try:
+                to_test.extend( find_testcases(cur_file.filename) )
+            except SyntaxError, e:
+                print "SyntaxError while importing %s:\n%s" % (
+                    cur_file.filename,
+                    e
+                )
         
         if len(to_test) == 0:
             # No tests found
